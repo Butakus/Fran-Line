@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fran-Line Monitor</title>
+    <meta charset="utf-8">
+    <link rel="icon" href="favicon.ico">
+    <!-- Bootstrap v4.1.1 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+</head>
+<body>
+    <div id="main_container" class="container-fluid main-container mt-5 pl-5">
+        <h4>Ticket monitor</h4>
+        <hr>
+        <div id="active_requests">
+        </div>
+    </div>
+
+
+    <!-- Bootstrap v4.1.1 -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+    <!-- Socket.io -->
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        function getElementInsideContainer(container, childID) {
+            var elm = {};
+            // var elms = document.getElementById(containerID).getElementsByTagName("*");
+            var elms = container.getElementsByTagName("*");
+            for (var i = 0; i < elms.length; i++) {
+                if (elms[i].id === childID) {
+                    elm = elms[i];
+                    break;
+                }
+            }
+            return elm;
+        }
+
+        function sendCMD(s, id, action) {
+            return function () {
+                var cmd = {}
+                cmd.id = id;
+                cmd.action = action;
+                s.emit("request_cmd", cmd);
+            };
+        };
+
+        const req_socket = io('http://localhost:5555/requests');
+        const cmd_socket = io('http://localhost:5555');
+        var request_elem = document.createElement('div');
+        request_elem.innerHTML =
+            "<div class='container-fluid'>" +
+                "<div class='row'>" +
+                    "<div id='req_time' class='col-4'></div>" +
+                    "<div id='req_id' class='col-2'></div>" +
+                    "<div id='req_name' class='col-2'></div>" +
+                "</div>" +
+                "<div class='row mt-2'>" +
+                    "<div id='req_status' class='col-4'></div>" +
+                    "<button id='button_accept' type='button' class='btn btn-success mr-1'>Accept</button>" +
+                    "<button id='button_reject' type='button' class='btn btn-danger mr-1'>Reject</button>" +
+                    "<button id='button_finish' type='button' class='btn btn-primary'>Finish</button>" +
+                "</div>" +
+                "<div class='row mt-2'>" +
+                    "<div id='req_data' class='col-12' style='white-space: pre-line'></div>" +
+                "</div>" +
+            "</div><hr>";
+
+        req_socket.on('active_requests', function(msg) {
+            var active_requests_list = document.getElementById("active_requests");
+            active_requests_list.innerHTML = "";
+            for (var i = 0; i < msg.length; i++) {
+                var div = document.createElement('div');
+                div.innerHTML = request_elem.innerHTML;
+                var div_id = getElementInsideContainer(div, "req_id");
+                div_id.innerHTML = "ID: " + msg[i].id;
+                var div_time = getElementInsideContainer(div, "req_time");
+                div_time.innerHTML = "Time: " + msg[i].time;
+                var div_name = getElementInsideContainer(div, "req_name");
+                div_name.innerHTML = "Name: " + msg[i].name;
+                var div_status = getElementInsideContainer(div, "req_status");
+                div_status.innerHTML = "Status: " + msg[i].status;
+                var div_data = getElementInsideContainer(div, "req_data");
+                div_data.innerHTML = "Request:<br>" + msg[i].data;
+                var button_accept = getElementInsideContainer(div, "button_accept");
+                button_accept.onclick = sendCMD(cmd_socket, msg[i].id, "accept");
+                var button_reject = getElementInsideContainer(div, "button_reject");
+                button_reject.onclick = sendCMD(cmd_socket, msg[i].id, "reject");
+                var button_finish = getElementInsideContainer(div, "button_finish");
+                button_finish.onclick = sendCMD(cmd_socket, msg[i].id, "finish");
+                active_requests_list.appendChild(div);
+            }
+        });
+    </script>
+</body>
+</html>

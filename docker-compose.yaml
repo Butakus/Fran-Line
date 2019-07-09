@@ -1,0 +1,17 @@
+version: "3.7"
+
+services:
+  fran_line_server:
+    container_name: fran_line_server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ".:/app"
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/app/node_modules"
+    ports:
+      - "80:80"
+      - "127.0.0.1:5555:5555"
+    environment:
+      - NODE_ENV=development
