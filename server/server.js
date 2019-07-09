@@ -158,8 +158,8 @@ io.on('connection', function(socket) {
         });
 
         socket.on('chat_msg', function(msg) {
-            console.log(client.name + " sent a chat msg:\n" + msg);
             var client = clients[socket.handshake.address];
+            console.log(client.name + " sent a chat msg:\n" + msg);
             if (client.uuid === "") {
                 console.error('Client ' + socket.handshake.address + ' has no UUID yet ');
                 return;
