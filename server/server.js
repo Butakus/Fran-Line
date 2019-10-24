@@ -22,6 +22,7 @@ var animals = require('./animals.json')["animals"];
 app.use(express.static(path.join(root_dir, 'build')));
 
 var clients = {};
+var client_sockets = {};
 var chat_msgs = [];
 
 function generate_name() {
@@ -83,6 +84,7 @@ io.on('connection', function(socket) {
     console.log('New connection from ' + socket.handshake.address);
     // Add the new client to the list
     if (!(socket.handshake.address in clients)) {
+        client_sockets[socket.handshake.address] = socket;
         clients[socket.handshake.address] = {}
         clients[socket.handshake.address].active_request = null;
         clients[socket.handshake.address].address = socket.handshake.address;
@@ -125,7 +127,7 @@ io.on('connection', function(socket) {
             admin_io.emit('update_client', client);
         });
 
-        socket.on('cancel_request', function(msg, callback) {
+        socket.on('cancel_request', function(callback) {
             var client = clients[socket.handshake.address];
             console.log('New cancel from ' + socket.handshake.address);
             if (client.uuid === "") {
@@ -139,11 +141,7 @@ io.on('connection', function(socket) {
                 return;
             }
 
-            console.log(client.name + " cancel the request");
-
-            if (callback !== undefined) {
-                callback(id);
-            }
+            console.log(client.name + " canceled the request");
 
             client.active_request = null;
             publish_active_requests();
@@ -206,18 +204,31 @@ admin_io.on('connection', function(socket) {
             console.log("Client " + cmd.client_addr + " not found");
             return;
         }
+        if (cmd.action === "kick") {
+            client_sockets[cmd.client_addr].emit("kick", cmd.msg);
+            client_sockets[cmd.client_addr].disconnect(0);
+            delete client_sockets[cmd.client_addr];
+            delete clients[cmd.client_addr];
+            publish_active_requests();
+            return;
+        }
+
         var client = clients[cmd.client_addr];
         switch (cmd.action) {
             case "accept":
+                client_sockets[cmd.client_addr].emit("request_accepted", cmd.msg);
                 client.active_request.status = "Processing";
                 break;
             case "delay":
+                client_sockets[cmd.client_addr].emit("request_delayed", cmd.msg);
                 client.active_request.status = "Delayed";
                 break;
             case "reject":
+                client_sockets[cmd.client_addr].emit("request_rejected", cmd.msg);
                 client.active_request.status = "Rejected";
                 break;
             case "finish":
+                client_sockets[cmd.client_addr].emit("request_finished", cmd.msg);
                 client.active_request = null;
                 break;
             default:

@@ -69,7 +69,6 @@ class RequestForm extends Component {
     return (
       <div>
         <div className="text-center">
-          <div className="mb-1"><h3>Hello {this.props.uuid}</h3></div>
           <Button color="primary" size="lg" onClick={this.toggleModal}>New Request?</Button>
         </div>
 

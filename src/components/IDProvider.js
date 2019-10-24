@@ -29,7 +29,7 @@ class IDProvider extends Component {
           alert("You already have a UUID...\nRestart the application if you want a new one.");
         }
         else {
-          alert("Your ID is " + uuid);
+          // alert("Your ID is " + uuid);
           this.props.setUUID(uuid);
         }
       }.bind(this));
@@ -40,7 +40,7 @@ class IDProvider extends Component {
     }
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.nameInput.focus();
   }
 
@@ -51,11 +51,11 @@ class IDProvider extends Component {
           <ModalHeader toggle={this.toggleModal}>Welcome to Fran-Line</ModalHeader>
           <form onSubmit={this.handleSubmit}>
             <ModalBody>
-                <div id="form_name" className="form-group">
-                  <label for="name">Name</label>
-                  <input id="input_name" ref={(input) => { this.nameInput = input; }} className="form-control" type="text" size="30" name="input_name" value={this.state.input_name} onChange={this.handleChange} />
-                  <small id="nameHelp" className="form-text text-muted">Worry not, your identity shall remain anonymous.</small>
-                </div>
+              <div id="form_name" className="form-group">
+                <label for="name">Name</label>
+                <input id="input_name" ref={(input) => { this.nameInput = input; }} className="form-control" type="text" size="30" name="input_name" value={this.state.input_name} onChange={this.handleChange} />
+                <small id="nameHelp" className="form-text text-muted">Worry not, your identity shall remain anonymous.</small>
+              </div>
             </ModalBody>
             <ModalFooter>
               <Button color="primary" type="submit">Start</Button>{' '}

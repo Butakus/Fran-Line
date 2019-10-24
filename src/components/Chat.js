@@ -87,7 +87,7 @@ class Chat extends Component {
   render () {
     return (
       <div>
-        <h3 className="text-center">Chat</h3>
+        <h3 className="text-center">Chat Room</h3>
         <hr/>
           <div style={chatBoxStyle} className="border rounded mb-3 list-group list-unstyled" ref={(el) => { this.chat_box = el; }}>
           {

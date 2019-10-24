@@ -7,12 +7,13 @@ class Monitor extends Component {
     super();
     this.state = {
       clients: {},
+      responses: {},
       socket_connected: false
     }
 
     this.updateAllClients = this.updateAllClients.bind(this);
     this.updateClient = this.updateClient.bind(this);
-    this.kickUser = this.kickUser.bind(this);
+    this.updateResponse = this.updateResponse.bind(this);
 
     this.socket = socketIOClient("http://localhost:5555");
     // this.socket = socketIOClient("http://163.117.150.92:5555");
@@ -25,21 +26,32 @@ class Monitor extends Component {
     var cmd = {}
     cmd.client_addr = client_addr;
     cmd.action = action;
+    cmd.msg = this.state.responses[client_addr];
     this.socket.emit("request_cmd", cmd);
   };
   
-  kickUser(client_addr) {
-    // TODO
-  };
-
   updateAllClients(data) {
-    this.setState({clients: data});
+    var responses = {}
+    Object.keys(data).forEach(function(client_addr, index) {
+      responses[client_addr] = "";
+    });
+    this.setState({clients: data, responses: responses});
   }
 
   updateClient(client) {
     var clients = this.state.clients;
     clients[client.address] = client;
-    this.setState({clients: clients});
+    var responses = this.state.responses;
+    if (responses[client.address] === undefined) {
+      responses[client.address] = "";
+    }
+    this.setState({clients: clients, responses: responses});
+  }
+
+  updateResponse(client_addr, event) {
+    var responses = this.state.responses;
+    responses[client_addr] = event.target.value;
+    this.setState({responses: responses});
   }
 
   render () {
@@ -62,7 +74,7 @@ class Monitor extends Component {
                 <div className='col-3'><b>ID:</b> {this.state.clients[client_addr].uuid}</div>
                 <div className='col-3'><b>Name:</b> {this.state.clients[client_addr].name}</div>
                 <div className='col-2'>
-                  <Button color="danger" onClick={(e) => this.kickUser(client_addr)}>Kick Out</Button>
+                  <Button color="danger" onClick={(e) => this.sendCMD(client_addr, "kick")}>Kick Out</Button>
                 </div>
               </div>
               <div className='row mt-1'>
@@ -94,6 +106,12 @@ class Monitor extends Component {
                   </div>
                   <div className='row mt-2'>
                     <div className='col-12' style={{WhiteSpace: "pre-line"}}>{this.state.clients[client_addr].active_request.data}</div>
+                  </div>
+                  <div className='row mt-2'>
+                    <div className='col-4'><b>Response:</b></div>
+                  </div>
+                  <div className='row mt-2'>
+                    <div className='col-4'><textarea rows="4" cols="40" value={this.state.responses[client_addr]} onChange={(e) => this.updateResponse(client_addr, e)}></textarea></div>
                   </div>
                 </div>
               )
