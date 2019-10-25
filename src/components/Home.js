@@ -105,10 +105,11 @@ class Home extends Component {
 
 
     request info: {
-      "Your request is {resuest.state}",    [cancel request button],
+      "Your request is {resuest.state}",
       Quick solution (automatic response lmgtfy),
       Message from the other side:
       {message}
+      [cancel request button]
     }
   */
   renderRequest() {
@@ -137,7 +138,7 @@ class Home extends Component {
             <h4>Your request is {this.state.active_request.status}</h4>
           </div>
           <div className="d-flex justify-content-center text-center">
-            <h4><a href={quick_link}>Quick solution</a> (Automatic response)</h4>
+            <h4><a target="_blank" rel="noopener noreferrer" href={quick_link}>Quick solution</a> (Automatic response)</h4>
           </div>
           {
             (this.state.response_msg === "") ? null : (

@@ -23,11 +23,14 @@ class Monitor extends Component {
   }
 
   sendCMD(client_addr, action) {
+    var responses = this.state.responses;
     var cmd = {}
     cmd.client_addr = client_addr;
     cmd.action = action;
-    cmd.msg = this.state.responses[client_addr];
+    cmd.msg = responses[client_addr];
     this.socket.emit("request_cmd", cmd);
+    responses[client_addr] = "";
+    this.setState({responses: responses});
   };
   
   updateAllClients(data) {
@@ -107,15 +110,15 @@ class Monitor extends Component {
                   <div className='row mt-2'>
                     <div className='col-12' style={{WhiteSpace: "pre-line"}}>{this.state.clients[client_addr].active_request.data}</div>
                   </div>
-                  <div className='row mt-2'>
-                    <div className='col-4'><b>Response:</b></div>
-                  </div>
-                  <div className='row mt-2'>
-                    <div className='col-4'><textarea rows="4" cols="40" value={this.state.responses[client_addr]} onChange={(e) => this.updateResponse(client_addr, e)}></textarea></div>
-                  </div>
                 </div>
               )
               }
+              <div className='row mt-2'>
+                <div className='col-4'><b>Response:</b></div>
+              </div>
+              <div className='row mt-2'>
+                <div className='col-4'><textarea rows="4" cols="40" value={this.state.responses[client_addr]} onChange={(e) => this.updateResponse(client_addr, e)}></textarea></div>
+              </div>
               <hr />
             </div>
           ))
