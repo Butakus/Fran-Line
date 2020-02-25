@@ -117,7 +117,7 @@ class Monitor extends Component {
                 <div className='col-4'><b>Response:</b></div>
               </div>
               <div className='row mt-2'>
-                <div className='col-4'><textarea rows="4" cols="40" value={this.state.responses[client_addr]} onChange={(e) => this.updateResponse(client_addr, e)}></textarea></div>
+                <div className='col-8'><textarea style={{width: "100%"}} rows="4" value={this.state.responses[client_addr]} onChange={(e) => this.updateResponse(client_addr, e)}></textarea></div>
               </div>
               <hr />
             </div>
